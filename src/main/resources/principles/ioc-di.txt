@@ -17,6 +17,7 @@ Dependency lookup имеет 2 разновидности:
 Dependency Injection имеет 2 разновидности:
  - через конструктор
  - через сеттер
+ - через поле (@Autowired в Spring)
 На самом деле 3 (see articles https://www.martinfowler.com/articles/injection.html)
 
 Извлечение зависимостей (Dependency Pull)
@@ -49,4 +50,28 @@ public class ContextualizedDependencyLookup implements ManagedComponent {
 
 Внедрение зависимостей через конструктор
 Внедрение зависимостей через конструктор происходит в том случае, когда зависимости предоставляются компоненту в его конструкторе
-(или нескольких конструкторах) в качестве аргументов.
+(или нескольких конструкторах) в качестве аргументов. Контейнер инверсии управления передает зависимости компоненту при получении
+его экземпляра.
+public class ConstructorInjection {
+    private Dependency dependency;
+    public ConstructorInjection(Dependency dependency) { this.dependency = dependency; }
+    @Override
+    public String toString() { return dependency.toString(); }
+}
+
+Внедрение зависимостей через setter
+При внедрении зависимостей через метод установки контейнер инверсии управления внедряет зависимости компонента через методы установки в стиле компонентов
+JavaBeans.
+public class SetterInjection {
+    private Dependency dependency;
+    public void setDependency(Dependency dependency) { this.dependency = dependency; }
+    @Override
+    public String toString() { return dependency.toString(); }
+}
+
+Выбрать тип внедрения зависимостей следует исходя из своего варианта использования:
+1. Внедрение зависимостей через метод установки позволяет менять местами
+зависимости, не создавая новые объекты, а также разрешает классу выбирать подходящие стандартные настройки, не прибегая к явному внедрению объекта.
+2. Внедрение зависимостей через конструктор окажется удачным выбором в том случае, когда требуется гарантировать передачу зависимостей компоненту и когда
+проектирование выполняется для неизменяемых объектов.
+
