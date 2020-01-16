@@ -1,0 +1,52 @@
+Inversion of Control and Dependency Injection Principles:
+
+Компонент, которому требуются определенные зависимости, зачастую называется зависимым объектом.
+А в случае инверсии управления - целевым объектом.
+
+Ioc может быть разделен на два подтипа:
+ - внедрение зависимостей (dependency injection);
+ - поиск зависимостей (dependency lookup).
+
+Если IOC реализуется как dependency lookup, то компонент должен получить ссылку на зависимость.
+Если IOC реализуется как dependency injection зависимости внедряются в компонент контейнером инверсии управления.
+
+Dependency lookup имеет 2 разновидности:
+ - извлечение зависимостей (dependency pull)
+ - контекстный поиск зависимостей (CDL - Contextualized Dependency Lookup)
+
+Dependency Injection имеет 2 разновидности:
+ - через конструктор
+ - через сеттер
+На самом деле 3 (see articles https://www.martinfowler.com/articles/injection.html)
+
+Извлечение зависимостей (Dependency Pull)
+В этом случае зависимости извлекаются из реестра по мере необходимости.
+(see dependency-pull-scheme.png)
+Примеры:
+1. EJB -> извлечение зависимостей через прикладной интерфейс JNDI API для поиска EJB.
+2. Spring -> извлечение компонентов, которыми управляет Spring:
+  ApplicationContext ctx = new ClassPathXmlApplicationContext("/helloworld/xml/app-context.xml");
+  MessageRenderer renderer = ctx.getBean("renderer", MessageRenderer.class);
+  renderer.render();
+
+Контекстный поиск зависимостей (CDL - Contextualized Dependency Lookup)
+Поиск осуществляется в контейнере - Spring framework, управляющем ресурсом.
+Контекстный поиск зависимостей производится в установленной точке.
+Контейнер инверсии управления передает зависимости компоненту при получении его экземпляра.
+(see principles/cdl)
+Реализуя ManagedComponent интерфейс, комnонент извещает контейнер, что ему требуется получитьзависимость.
+Как только контейнер будет готов передать зависимости компоненту, он вызовет метод performLookup() по очереди для каждого компонента.
+И тогда компонент сможет искать свои зависимости, используя интерфейс Container.
+public class ContextualizedDependencyLookup implements ManagedComponent {
+    private Dependency dependency;
+    @Override
+    public void performLookup(Container container) {
+        this.dependency = (Dependency) container.getDependency("myDependency");
+    }
+    @Override
+    public String toString() { return dependency.toString(); }
+}
+
+Внедрение зависимостей через конструктор
+Внедрение зависимостей через конструктор происходит в том случае, когда зависимости предоставляются компоненту в его конструкторе
+(или нескольких конструкторах) в качестве аргументов.
