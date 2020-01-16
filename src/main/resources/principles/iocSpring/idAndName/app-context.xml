@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean class="core.principles.iocSpring.idAndName.Person" id="vasya" name="vas, vaz, vax" p:car-ref="bmw" p:age="21" p:name="Vasya"/>
+
+    <bean class="core.principles.iocSpring.idAndName.Bmw" id="bmw" name="bumer, bmw" p:name="X7" >
+        <qualifier value="BMW-X7" type="core.principles.iocSpring.idAndName.Bmw"/>
+    </bean>
+
+    <bean class="core.principles.iocSpring.idAndName.Audi" id="audi" name="OOOO, audi" p:name="Q7">
+        <qualifier value="AUDI-Q7"/>
+    </bean>
+
+</beans>

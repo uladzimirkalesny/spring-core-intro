@@ -75,3 +75,52 @@ public class SetterInjection {
 2. Внедрение зависимостей через конструктор окажется удачным выбором в том случае, когда требуется гарантировать передачу зависимостей компоненту и когда
 проектирование выполняется для неизменяемых объектов.
 
+IOC в Spring
+Dependency Injection является предпочтительным механизмом связывания вместе взаимодействующих и зависимых объектов (see mechanism-di-in-spring.png),
+для доступа к зависимым объектам понадобится и dependency lookup. Во многих средах Spring не может автоматически связать все компоненты приложения
+с помощью dependency injection, поэтому для доступа к первоначальному набору компонентов придется прибегнуть к dependency lookup.
+
+Ioc-container в Spring примечателен тем, что он может выполнять функцию адаптера между его собственным контейнером dependency injection и внешними контейнерами
+dependency lookup.
+
+Компоненты Spring Beans и их фабрики
+Интерфейс Bean Factory - ядро контейнера dependency injection в Spring. Отвечает за управление компонентами Spring Beans, в том числе их зависимостями и
+жизненными циклами.
+Термин "Компонент Spring Bean" употребляется в Spring для обозначения любого компонента, управляемого контейнером.
+
+Если в приложении требуется лишь поддержка dependency injection, то с контейнером dependency injection в Spring можно взаимодействовать через интерфейс
+BeanFactory. В этом случае в приложении необходимо создать экземпляр класса, реализующего интерфейс BeanFactory, и сконфигурировать его на основании
+сведений о компонентах Spring Beans и зависимостях. Как только это будет сделано, компоненты Spring Beans могут быть доступны в приложении через интерфейс
+BeanFactory для последующей обработки.
+В веб-приложении экземпляр типа ApplicationContext будет загружаться веб-контейнером во время начальной загрузки приложения с помощью класса
+ContextLoaderListener, предоставляемого в Spring и объявленного в дескрипторном файле web.xml.
+
+Внутренне конфигурация компонентов Spring Beans представлена экземплярами классов, реализующих интерфейс BeanDefinition.
+Для любых классов реализации интерфейса BeanFactory, в которых также реализуется интерфейс BeanDefinitionReader, данные типа BeanDefinition можно прочитать
+из файла конфигурации, используя классы PropertiesBeanDefinitionReader или XmlBeanDefinitionReader.
+В частности, класс PropertiesBeanDefinitionReader читает определение компонента Spring Bean из файла свойств, а класс XmlBeanDefinitionReader - из ХМL-файла.
+
+Компоненты Spring Beans можно идентифицировать в интерфейсе Bean Factory, и каждому компоненту Spring Bean может быть назначен идентификатор, имя или то и
+другое. Экземпляр компонента Spring Bean можно получить и без идентификатора  или имени (это так называемый анонимный компонент Spring Bean) или как один
+компонент внутри другого компонента Spring Bean.
+
+Компоненты Spring Beans можно идентифицировать в интерфейсе Bean Factory, и каждому компоненту Spring Bean может быть назначен идентификатор, имя или то и другое.
+<bean class="core.principles.iocSpring.idAndName.Person" id="vasya" name="vas, vaz, vax" p:car-ref="bmw" p:age="21" p:name="Vasya"/>
+
+У каждого компонента Spring Bean имеется по крайней мере одно имя, но их может быть сколько угодно, причем дополнительные имена разделяются запятыми.
+<bean class="core.principles.iocSpring.idAndName.Bmw" id="bmw" name="bumer, bmw" p:name="X7" >
+    <qualifier value="BMW-X7" type="core.principles.iocSpring.idAndName.Bmw"/>
+</bean>
+
+
+Реализация BeanFactory: (see core.principles.iocSpring.beanFactory)
+DefaultListableBeanFactory factory = new DefaultListableBeanFactory();
+XmlBeanDefinitionReader rdr = new XmlBeanDefinitionReader(factory);
+rdr.loadBeanDefinitions(new ClassPathResource("principles/iocSpring/beanFactory/xml-bean-factory-config.xml"));
+Oracle oracle = (Oracle) factory.getBean("oracle");
+System.out.println(oracle.defineMeaningOfLife());
+Класс DefaultListableBeanFactory используется в качестве одной из двух основных реализаций интерфейса BeanFactory, предоставляемых в Spring, а данные типа
+BeanDefinition читаются из ХМL-файла средствами класса XmlBeanDefinitionReader.
+Как только реализация интерфейса BeanFactory будет создана и сконфигурирована, компонент Spring Bean извлекается по его имени oracle, указанному в ХМL-файле конфигурации:
+
+Если требуется определить новый механизм конфигурации, создайте собственное средство чтения определений, разработав класс, расширяющий класс DefaultListaЬleBeanFactory и реализующий интерфейс BeanFactory.
