@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xsi:schemaLocation=
+               "http://www.springframework.org/schema/beans
+                http://www.springframework.org/schema/beans/spring-beans.xsd
+                http://www.springframework.org/schema/context
+                http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <!--    namespace: ApplicationContext - context, AOP - aop, Transaction - tx -->
+    <!--    descriptor context:component-scan check base-package on contains annotations : @Component, @Controller, @Repository и @Service, @Autowired и @Inject -->
+    <!--    base-package - one or infinity (, ; " " ) -->
+    <context:component-scan base-package="core.principles.iocSpring.applicationContext">
+        <context:include-filter type="assignable"
+                                expression="core.principles.iocSpring.applicationContext.IncludeTestClass"/>
+        <context:exclude-filter type="assignable"
+                                expression="core.principles.iocSpring.applicationContext.ExcludeTestClass"/>
+    </context:component-scan>
+
+<!--    <bean id="messageProvider"-->
+<!--          class="core.principles.iocSpring.applicationContext.beanDeclaration.HelloWorldMessageProvider"/>-->
+<!--    <bean id="messageRenderer"-->
+<!--          class="core.principles.iocSpring.applicationContext.beanDeclaration.StandardOutMessageRenderer"-->
+<!--          p:messageProvider-ref="messageProvider"/>-->
+
+</beans>
+
