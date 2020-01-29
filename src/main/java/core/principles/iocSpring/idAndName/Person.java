@@ -1,7 +1,5 @@
 package core.principles.iocSpring.idAndName;
 
-import org.springframework.beans.factory.annotation.Qualifier;
-
 public class Person {
     private String name;
     private int age;
