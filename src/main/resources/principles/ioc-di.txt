@@ -486,3 +486,155 @@ public class SingerRunner {
  - Внедрение зависимостей через поле неприменимо к оконечным полям. Такие поля могут быть инициализированы только с помощью внедрения зависимостей через конструктор.
  - Внедрение зависимостей через поле затрудняет написание тестов, поскольку зависимости приходится внедрять вручную.
 
+
+Применение параметров внедрения зависимостей
+Внедрение простых значений
+
+Внедрять простые значения в компоненты Spring Beans совсем не трудно: достаnочно указать в конфигурации значение, заключенное в дескриптор разметки
+<value>. По умолчанию дескриптор <value> допускает не только чтение значений типа String, но и их преобразование в любой примитивный тип данных или класс-оболочку примитивного типа.
+
+<bean id="injectSimple" class="core.principles.iocSpring.parameterDI.simple.InjectSimple"
+          p:name="Paul George" p:age="25" p:height="2.07" p:programmer="false" p:ageInSeconds="555555555"/>
+
+public class InjectSimple {
+    private String name;
+    private int age;
+    private float height;
+    private boolean programmer;
+    private Long ageInSeconds;
+    //setters toString()
+    public static void main(String[] args) {
+        ApplicationContext context = new GenericXmlApplicationContext("classpath:principles/iocSpring/parameterDI/simple/injectSimpleParameter.xml");
+        InjectSimple injectSimple = context.getBean("injectSimple", InjectSimple.class);
+        System.out.println(injectSimple);
+    }
+}
+
+В свойствах компонента Spring Bean можно применить аннотацию @Value. Но на этот раз вместо метода установки применим эту аннотацию в операторе объявления свойства.
+В каркасе Spring аннотации поддерживаются в методе установки или же в свойствах.
+<context:component-scan base-package="core.principles.iocSpring.parameterDI.simple"/>
+
+Service("injectSimpleWithAnnotation")
+public class InjectSimpleWithAnnotation {
+    @Value("Paul Pierce")
+    private String name;
+    @Value("45")
+    private int age;
+    @Value("1.99")
+    private float height;
+    @Value("false")
+    private boolean programmer;
+    @Value("77777777")
+    private Long ageInSeconds;
+    // toString()
+    public static void main(String[] args) {
+        ApplicationContext context = new GenericXmlApplicationContext("classpath:principles/iocSpring/parameterDI/simple/injectSimpleParameterWithAnnotation.xml");
+        InjectSimpleWithAnnotation injectSimpleWithAnnotation = context.getBean("injectSimpleWithAnnotation", InjectSimpleWithAnnotation.class);
+        System.out.println(injectSimpleWithAnnotation);
+    }
+}
+
+Внедрение значений средствами SpEL
+В версии Spring 3 появилось эффективное функциональное средство - язык выражений Spring (Spring Expression Language - SpEL), позволяющий вычислять выражения
+динамически и затем применять их в интерфейсе ApplicationContext.
+
+<bean id="injectSimpleConfig" class="core.principles.iocSpring.parameterDI.simple.InjectSimpleConfig"/>
+
+    <bean id="injectSimpleSpEL"
+          class="core.principles.iocSpring.parameterDI.simple.InjectSimpleWithSpEL"
+          p:name="#{injectSimpleConfig.name}"
+          p:age="#{injectSimpleConfig.age}"
+          p:height="#{injectSimpleConfig.height}"
+          p:programmer="#{injectSimpleConfig.programmer}"
+          p:ageInSeconds="#{injectSimpleConfig.ageInSeconds}"/>
+
+@Component("injectSimpleConfig")
+class InjectSimpleConfig {
+    private String name = "Martin Fowler";
+    private int age = 45;
+    private float height = 1.89f;
+    private boolean programmer = true;
+    private Long ageInSeconds = 4444444444L;
+    // getter
+}
+
+public class InjectSimpleWithSpEL {
+    private String name;
+    private int age;
+    private float height;
+    private boolean programmer;
+    private Long ageInSeconds;
+    // getter setter toString
+    public static void main(String[] args) {
+        ApplicationContext context = new GenericXmlApplicationContext("classpath:principles/iocSpring/parameterDI/simple/InjectSimpleParameterWithSpEL.xml");
+        InjectSimpleWithSpEL injectSimpleSpEL = context.getBean("injectSimpleSpEL", InjectSimpleWithSpEL.class);
+        System.out.println(injectSimpleSpEL);
+    }
+}
+
+Для внедрения значений с помощью аннотаций потребуется лишь добавить аннотации @Value с выражениями SpEL.
+<context:component-scan base-package="core.principles.iocSpring.parameterDI.simple"/>
+
+@Component("injectSimpleConfigAnnotation")
+class InjectSimpleConfigAnnotation {
+    private String name = "Martin Fowler";
+    private int age = 45;
+    private float height = 1.89f;
+    private boolean programmer = true;
+    private Long ageInSeconds = 4444444444L;
+
+    public String getName() {
+        return name;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    public float getHeight() {
+        return height;
+    }
+
+    public boolean isProgrammer() {
+        return programmer;
+    }
+
+    public Long getAgeInSeconds() {
+        return ageInSeconds;
+    }
+}
+
+@Service("injectSimpleWithSpELAndAnnotation")
+public class InjectSimpleWithSpELAndAnnotation {
+    @Value("#{injectSimpleConfigAnnotation.name}")
+    private String name;
+    @Value("#{injectSimpleConfigAnnotation.age}")
+    private int age;
+    @Value("#{injectSimpleConfigAnnotation.height}")
+    private float height;
+    @Value("#{injectSimpleConfigAnnotation.programmer}")
+    private boolean programmer;
+    @Value("#{injectSimpleConfigAnnotation.ageInSeconds}")
+    private Long ageInSeconds;
+
+    @Override
+    public String toString() {
+        return "InjectSimpleWithSpELAndAnnotation{" +
+                "name='" + name + '\'' +
+                ", age=" + age +
+                ", height=" + height +
+                ", programmer=" + programmer +
+                ", ageInSeconds=" + ageInSeconds +
+                '}';
+    }
+
+    public static void main(String[] args) {
+        ApplicationContext context = new GenericXmlApplicationContext("classpath:principles/iocSpring/parameterDI/simple/injectSimpleParameterWithSpELAndAnnotation.xml");
+        InjectSimpleWithSpELAndAnnotation injectSimpleWithSpELAndAnnotation = context.getBean("injectSimpleWithSpELAndAnnotation", InjectSimpleWithSpELAndAnnotation.class);
+        System.out.println(injectSimpleWithSpELAndAnnotation);
+    }
+}
+
+Но поскольку класс InjectSimpleConfigAnnotation сохраняет конфигурацию приложения, а не предоставляет бизнес-услуги, то применение аннотации @Component
+имеет больший смысл. На практике аннотация @Service является частным случаем аннотации @Component, отражая тот факт, что снабженный ею класс предоставляет
+услуги бизнес-логики другим уровням в приложении.
